@@ -1,0 +1,15 @@
+[workspace]
+members = ["kernel"]
+
+[package]
+name = "os"
+version = "0.1.0"
+
+[build-dependencies]
+bootloader = "0.11"
+kernel = { path = "kernel", artifact = "bin", target = "x86_64-unknown-none" }
+
+[dependencies]
+ovmf-prebuilt = "0.1.0-alpha.1"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
