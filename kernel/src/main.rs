@@ -1,6 +1,9 @@
+#![feature(abi_x86_interrupt)]
 #![no_main]
 #![no_std]
 
+mod gdt;
+mod interrupts;
 mod logger;
 mod vga;
 
@@ -15,7 +18,7 @@ entry_point!(start);
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
 	println!("{}", info);
-	loop {}
+	halt();
 }
 
 pub fn start(boot_info: &'static mut BootInfo) -> ! {
@@ -26,7 +29,18 @@ pub fn start(boot_info: &'static mut BootInfo) -> ! {
 		LOGGER.lock().set_vga(vga);
 	}
 
+	gdt::init();
+	interrupts::init();
+
 	println!("Hello world!");
 
-	loop {}
+	x86_64::instructions::interrupts::int3();
+
+	halt();
+}
+
+fn halt() -> ! {
+	println!("Stopped.");
+	x86_64::instructions::hlt();
+	unreachable!();
 }
