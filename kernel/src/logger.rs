@@ -1,6 +1,7 @@
 use core::fmt;
 
 use spin::Mutex;
+use x86_64::instructions::interrupts::without_interrupts;
 
 use crate::vga::Vga;
 
@@ -50,5 +51,8 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
 	use core::fmt::Write;
-	LOGGER.lock().write_fmt(args).unwrap();
+
+	without_interrupts(|| {
+		LOGGER.lock().write_fmt(args).unwrap();
+	});
 }

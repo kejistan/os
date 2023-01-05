@@ -33,14 +33,17 @@ pub fn start(boot_info: &'static mut BootInfo) -> ! {
 	interrupts::init();
 
 	println!("Hello world!");
+	x86_64::instructions::interrupts::enable();
 
-	x86_64::instructions::interrupts::int3();
+	// x86_64::instructions::interrupts::int3();
 
 	halt();
 }
 
 fn halt() -> ! {
 	println!("Stopped.");
-	x86_64::instructions::hlt();
-	unreachable!();
+
+	loop {
+		x86_64::instructions::hlt();
+	}
 }

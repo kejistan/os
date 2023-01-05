@@ -13,6 +13,7 @@ fn main() -> io::Result<()> {
 		cmd.arg("-drive")
 			.arg(format!("format=raw,file={uefi_path}"));
 	}
+	cmd.arg("-s");
 	let mut child = cmd.spawn()?;
 	child.wait()?;
 
