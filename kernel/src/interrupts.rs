@@ -1,7 +1,7 @@
 use crate::{print, println};
 use lazy_static::lazy_static;
 use pic8259::ChainedPics;
-use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
+use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
 const PIC_OFFSET: u8 = 32;
 static PICS: spin::Mutex<ChainedPics> =
@@ -20,6 +20,7 @@ lazy_static! {
 		idt.double_fault.set_handler_fn(double_fault_handler);
 		idt.general_protection_fault
 			.set_handler_fn(general_protection_fault_handler);
+		idt.page_fault.set_handler_fn(page_fault_handler);
 
 		idt[InterruptIdx::Timer.as_usize()].set_handler_fn(timer_interrupt_handler);
 
@@ -57,6 +58,20 @@ extern "x86-interrupt" fn general_protection_fault_handler(
 	panic!(
 		"EXCEPTION: GENERAL PROTECTION FAULT\ncode: {}\n{:#?}",
 		error_code, stack_frame
+	);
+}
+
+extern "x86-interrupt" fn page_fault_handler(
+	stack_frame: InterruptStackFrame,
+	error_code: PageFaultErrorCode,
+) {
+	use x86_64::registers::control::Cr2;
+
+	panic!(
+		"EXCEPTION: PAGE FAULT\nAccessed Address: {:?}\nError Code: {:?}\n{:#?}",
+		Cr2::read(),
+		error_code,
+		stack_frame
 	);
 }
 
